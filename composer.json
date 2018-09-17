@@ -1,0 +1,16 @@
+{
+    "name": "minifox/database",
+    "description": "A simple ORM for Minifox",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Socks the Fox",
+            "email": "jade@socksthefox.net"
+        }
+    ],
+	"autoload": {
+		"psr-4": {
+			"Minifox\\": "src/"
+		}
+	}
+}
