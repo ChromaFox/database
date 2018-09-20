@@ -54,6 +54,16 @@ class Query implements \IteratorAggregate
 		
 		$result = $this->db->run($query['sql'], $query['values']);
 		
+		if($this->action == "Insert")
+			$result = $this->db->lastInsertId();
+		else if($this->action == "Count")
+		{
+			if(!empty($result))
+				$result = $result[0][0];
+			else
+				$result = 0;
+		}
+		
 		$this->results = $result;
 		return $result;
 	}
@@ -87,6 +97,15 @@ class Query implements \IteratorAggregate
 	{
 		$this->action = "Delete";
 		$this->table = $table;
+		
+		return $this;
+	}
+	
+	public function count($table)
+	{
+		$this->action = "Count";
+		$this->table = $table;
+		$this->columns = "COUNT(*)";
 		
 		return $this;
 	}
@@ -226,6 +245,11 @@ class Query implements \IteratorAggregate
 		$sql = "DELETE FROM {$this->prefix}{$this->table}";
 		
 		return ['sql' => $sql, 'values' => []];
+	}
+	
+	private function formatCount()
+	{
+		return $this->formatSelect();
 	}
 	
 	private static function formatWhere($where, $combine = "AND")
