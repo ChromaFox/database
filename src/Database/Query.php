@@ -110,6 +110,24 @@ class Query implements \IteratorAggregate
 		return $this;
 	}
 	
+	public function createTable($table, $columns, $engine = "")
+	{
+		$this->action = "CreateTable";
+		$this->table = $table;
+		$this->columns = $columns;
+		$this->queryValues = $engine;
+		
+		return $this;
+	}
+	
+	public function dropTable($table)
+	{
+		$this->action = "DropTable";
+		$this->table = $table;
+		
+		return $this;
+	}
+	
 	public function leftJoin($table, $on)
 	{
 		if(!is_array($this->join))
@@ -250,6 +268,32 @@ class Query implements \IteratorAggregate
 	private function formatCount()
 	{
 		return $this->formatSelect();
+	}
+	
+	public function formatCreateTable()
+	{
+		$coldefs = [];
+		
+		foreach($this->columns as $col => $def)
+		{
+			if(is_string($col))
+				$coldefs[] = "{$col} {$def}";
+			else
+				$coldefs[] = $def;
+		}
+		
+		$coldefs = implode(", ", $coldefs);
+		$sql = "CREATE TABLE {$this->prefix}{$this->table} ({$coldefs})";
+		if(!empty($this->queryValues))
+			$sql .= " ENGINE = {$this->queryValues}";
+		
+		return ['sql' => $sql, 'values' => []];
+	}
+	
+	public function formatDropTable()
+	{
+		$sql = "DROP TABLE IF EXISTS {$this->prefix}{$this->table}";
+		return ['sql' => $sql, 'values' => []];
 	}
 	
 	private static function formatWhere($where, $combine = "AND")
