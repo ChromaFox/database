@@ -75,6 +75,14 @@ class Query implements \IteratorAggregate
 		return $this;
 	}
 	
+	public function insert($table)
+	{
+		$this->action = "Insert";
+		$this->table = $table;
+		
+		return $this;
+	}
+	
 	public function leftJoin($table, $on)
 	{
 		if(!is_array($this->join))
@@ -191,6 +199,18 @@ class Query implements \IteratorAggregate
 		$sql .= implode(", ", $columns);
 		
 		return ['sql' => $sql, 'values' => $values;
+	}
+	
+	private function formatInsert()
+	{
+		$columns = implode(', ', array_keys($this->queryValues));
+		$values = array_values($this->queryValues);
+		
+		$placeholders = implode(', ', array_fill(0, count($this->queryValues), '?'));
+		
+		$sql = "INSERT INTO {$this->prefix}{$table} ({$columns}) VALUES ({$placeholders})";
+		
+		return ['sql' => $sql, 'values' => []];
 	}
 	
 	private static function formatWhere($where, $combine = "AND")
