@@ -83,6 +83,14 @@ class Query implements \IteratorAggregate
 		return $this;
 	}
 	
+	public function delete($table)
+	{
+		$this->action = "Delete";
+		$this->table = $table;
+		
+		return $this;
+	}
+	
 	public function leftJoin($table, $on)
 	{
 		if(!is_array($this->join))
@@ -182,7 +190,7 @@ class Query implements \IteratorAggregate
 	
 	private function formatUpdate()
 	{
-		$sql = "UPDATE {$this->prefix}{$table} SET ";
+		$sql = "UPDATE {$this->prefix}{$this->table} SET ";
 		$values = [];
 		
 		foreach($this->queryValues as $col => $val)
@@ -208,7 +216,14 @@ class Query implements \IteratorAggregate
 		
 		$placeholders = implode(', ', array_fill(0, count($this->queryValues), '?'));
 		
-		$sql = "INSERT INTO {$this->prefix}{$table} ({$columns}) VALUES ({$placeholders})";
+		$sql = "INSERT INTO {$this->prefix}{$this->table} ({$columns}) VALUES ({$placeholders})";
+		
+		return ['sql' => $sql, 'values' => []];
+	}
+	
+	private function formatDelete()
+	{
+		$sql = "DELETE FROM {$this->prefix}{$this->table}";
 		
 		return ['sql' => $sql, 'values' => []];
 	}
