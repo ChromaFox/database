@@ -11,6 +11,8 @@ class Query implements \IteratorAggregate
 	
 	private $join = null;
 	
+	private $queryValues = null;
+	
 	private $whereValues = null;
 	private $orderByValues = null;
 	private $limitValues = null;
@@ -65,6 +67,14 @@ class Query implements \IteratorAggregate
 		return $this;
 	}
 	
+	public function update($table)
+	{
+		$this->action = "Update";
+		$this->table = $table;
+		
+		return $this;
+	}
+	
 	public function leftJoin($table, $on)
 	{
 		if(!is_array($this->join))
@@ -74,6 +84,17 @@ class Query implements \IteratorAggregate
 			$this->join['LEFT'] = [];
 		
 		$this->join['LEFT'][$table] = $on;
+	}
+	
+	public function values($values)
+	{
+		if(is_array($this->whereValues))
+			$this->queryValues = array_merge_recursive($this->queryValues, $values);
+		else
+			$this->queryValues = $values;
+		$this->queryValues = $values;
+		
+		return $this;
 	}
 	
 	public function where($values)
@@ -149,6 +170,27 @@ class Query implements \IteratorAggregate
 			$sql = "SELECT {$formattedCols} FROM {$this->prefix}{$this->table}";
 		
 		return ['sql' => $sql, 'values' => []];
+	}
+	
+	private function formatUpdate()
+	{
+		$sql = "UPDATE {$this->prefix}{$table} SET ";
+		$values = [];
+		
+		foreach($this->queryValues as $col => $val)
+		{
+			if(is_array($val) && isset($val['raw']))
+				$columns[] = "{$col} = {$val['raw']}";
+			else
+			{
+				$columns[] = "{$col} = ?";
+				$values[] = $val;
+			}
+		}
+		
+		$sql .= implode(", ", $columns);
+		
+		return ['sql' => $sql, 'values' => $values;
 	}
 	
 	private static function formatWhere($where, $combine = "AND")
