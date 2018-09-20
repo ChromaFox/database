@@ -6,6 +6,15 @@ class Database
 	private $queryList = array();
 	private $prefixes = [];
 	
+	private $vendor;
+	private $dbname;
+	private $host;
+	private $user;
+	private $pass;
+	private $charset;
+	private $persistent;
+	
+	
 	private function recordQuery($sql, $values, $time)
 	{
 		if($values != null)
@@ -33,9 +42,13 @@ class Database
 	
 	public function __construct($vendor, $dbname, $host, $user, $pass, $charset = "utf8", $persistent = true)
 	{
-		$start = microtime(true);
-		$this->db = new \PDO($vendor.":dbname=".$dbname.";host=".$host.";charset=".$charset, $user, $pass, [\PDO::ATTR_PERSISTENT => $persistent]);
-		$this->recordQuery("CONNECT", [], microtime(true) - $start);
+		$this->vendor = $vendor;
+		$this->dbname = $dbname;
+		$this->host = $host;
+		$this->user = $user;
+		$this->pass = $pass;
+		$this->charset = $charset;
+		$this->persistent = $persistent;
 		
 		$this->prefixes[''] = "";
 	}
@@ -50,6 +63,23 @@ class Database
 		$this->prefixes = array_merge($this->prefixes, $list);
 	}
 	
+	public function connect()
+	{
+		$start = microtime(true);
+		$this->db = new \PDO(
+			$this->vendor.
+			":dbname=".$this->dbname.
+			";host=".$this->host.
+			";charset=".$this->charset,
+			$this->user,
+			$this->pass,
+			[\PDO::ATTR_PERSISTENT => $persistent]);
+		
+		$this->pass = null;
+		
+		$this->recordQuery("CONNECT", [], microtime(true) - $start);
+	}
+	
 	public function getQueries()
 	{
 		return $this->queryList;
@@ -57,6 +87,9 @@ class Database
 
 	public function run($sql, $values = null)
 	{
+		if(!$this->isConnected())
+			$this->connect();
+		
 		$start = microtime(true);
 		
 		$query = $this->db->prepare($sql);
