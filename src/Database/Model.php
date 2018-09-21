@@ -35,7 +35,7 @@ abstract class Model
 		if(!isset($info['proxy']))
 			$info['proxy'] = '';
 		
-		$query = $db->query($info['proxy'])->select("*", $info['table'])
+		$query = $db->query($info['proxy'])->select("*", $info['table']);
 		
 		if(is_array($which))
 			$query->where($which);
