@@ -243,7 +243,7 @@ class Query implements \IteratorAggregate
 		
 		$sql .= implode(", ", $columns);
 		
-		return ['sql' => $sql, 'values' => $values;
+		return ['sql' => $sql, 'values' => $values];
 	}
 	
 	private function formatInsert()
