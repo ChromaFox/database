@@ -73,7 +73,7 @@ class Database
 			";charset=".$this->charset,
 			$this->user,
 			$this->pass,
-			[\PDO::ATTR_PERSISTENT => $persistent]);
+			[\PDO::ATTR_PERSISTENT => $this->persistent]);
 		
 		$this->pass = null;
 		
