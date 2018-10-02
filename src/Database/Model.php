@@ -2,6 +2,11 @@
 
 abstract class Model
 {
+	private $original = [];
+	private $modified = [];
+	
+	public $db = null;
+	
 	// This must return the schema information
 	abstract static function schema();
 	
@@ -22,10 +27,36 @@ abstract class Model
 		foreach($info['schema'] as $key => $type)
 		{
 			if(isset($values[$key]))
-				$this->{$key} = $values[$key];
+				$this->original[$key] = $values[$key];
 			else
-				$this->{$key} = null;
+				$this->original[$key] = null;
 		}
+	}
+	
+	public function __get($name)
+	{
+		if(isset($this->modified[$name]))
+			return $this->modified[$name];
+		else
+			return $this->original[$name];
+	}
+	
+	public function __set($name, $value)
+	{
+		if($this->original[$name] != $value)
+			$this->modified[$name] = $value;
+	}
+	
+	public function __isset($name)
+	{
+		return isset($this->modified[$name]) || isset($this->original[$name]);
+	}
+	
+	public function __unset($name)
+	{
+		if(isset($this->modified[$name]))
+			unset($this->modified[$name]);
+		unset($this->original[$name]);
 	}
 	
 	static function find(\Minifox\Database $db, $which, $extra = [])
@@ -96,6 +127,9 @@ abstract class Model
 	
 	function save()
 	{
+		if(empty($this->modified))
+			return false;
+		
 		if(!$this->validate())
 			return false;
 		
@@ -109,12 +143,22 @@ abstract class Model
 		$values = [];
 		
 		foreach($info['schema'] as $col => $type)
-			$values[$col] = (($type == 'list' && is_array($this->{$col}))? implode(", ", $this->{$col}) : (($type == 'bool')? ($this->{$col}? 1 : 0) : $this->{$col}));
+		{
+			if(!isset($this->modified[$col]))
+				continue;
+			
+			if($type == 'list' && is_array($this->modified[$col]))
+				$values[$col] = implode(", ", $this->modified[$col]);
+			else if($type == 'bool')
+				$values[$col] = $this->modified[$col]? 1 : 0;
+			else
+				$values[$col] = $this->modified[$col];
+		}
 		
-		if($this->{$idCol} == null)
-			$this->{$idCol} = $this->db->query($info['proxy'])->insert($info['table'])->values($values)->run();
+		if($this->original[$idCol] == null)
+			$this->original[$idCol] = $this->db->query($info['proxy'])->insert($info['table'])->values($values)->run();
 		else
-			$this->db->query($info['proxy'])->update($info['table'])->values($values)->where([$idCol => $this->{$idCol}])->run();
+			$this->db->query($info['proxy'])->update($info['table'])->values($values)->where([$idCol => $this->original[$idCol]])->run();
 		
 		return true;
 	}
@@ -127,7 +171,7 @@ abstract class Model
 			$info['proxy'] = '';
 		
 		$idCol = Model::getIDColumn($info['schema']);
-		if($this->{$idCol} === null)
+		if($this->original[$idCol] === null && $this->modified[$idCol] === null)
 			return;
 		
 		$this->db->query($info['proxy'])->delete($info['table'])->where([$idCol => $this->{$idCol}]);
