@@ -255,7 +255,7 @@ class Query implements \IteratorAggregate
 		
 		$sql = "INSERT INTO {$this->prefix}{$this->table} ({$columns}) VALUES ({$placeholders})";
 		
-		return ['sql' => $sql, 'values' => []];
+		return ['sql' => $sql, 'values' => $values];
 	}
 	
 	private function formatDelete()
