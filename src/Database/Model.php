@@ -37,13 +37,15 @@ abstract class Model
 	{
 		if(isset($this->modified[$name]))
 			return $this->modified[$name];
-		else
+		else if(isset($this->original[$name]))
 			return $this->original[$name];
+		else
+			return;
 	}
 	
 	public function __set($name, $value)
 	{
-		if($this->original[$name] != $value)
+		if(!isset($this->original[$name]) || $this->original[$name] != $value)
 			$this->modified[$name] = $value;
 	}
 	
@@ -154,6 +156,9 @@ abstract class Model
 			else
 				$values[$col] = $this->modified[$col];
 		}
+		
+		if(empty($values))
+			return false;
 		
 		if($this->original[$idCol] == null)
 			$this->original[$idCol] = $this->db->query($info['proxy'])->insert($info['table'])->values($values)->run();
