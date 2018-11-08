@@ -77,7 +77,7 @@ class Database
 		
 		$this->pass = null;
 		
-		$this->recordQuery("CONNECT", [], microtime(true) - $start);
+		$this->recordQuery("CONNECT ? on ?", [$this->dbname, $this->host], microtime(true) - $start);
 	}
 	
 	public function getQueries()
