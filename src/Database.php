@@ -66,11 +66,15 @@ class Database
 	public function connect()
 	{
 		$start = microtime(true);
+		$conStr = $this->vendor;
+		if($this->vendor == "sqlite")
+			$conStr .= ":".$this->dbname;
+		else
+			$conStr .= ":dbname=".$this->dbname.
+				";host=".$this->host.
+				";charset=".$this->charset;
 		$this->db = new \PDO(
-			$this->vendor.
-			":dbname=".$this->dbname.
-			";host=".$this->host.
-			";charset=".$this->charset,
+			$conStr,
 			$this->user,
 			$this->pass,
 			[\PDO::ATTR_PERSISTENT => $this->persistent]);
