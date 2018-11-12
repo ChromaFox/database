@@ -97,8 +97,13 @@ class Database
 		$start = microtime(true);
 		
 		$query = $this->db->prepare($sql);
-		$query->execute($values);
-		$err = $query->errorInfo();
+		if($query !== false)
+		{
+			$query->execute($values);
+			$err = $query->errorInfo();
+		}
+		else
+			$err = $this->db->errorInfo();
 		if($err[0] != 0)
 		{
 			print_r($err);
