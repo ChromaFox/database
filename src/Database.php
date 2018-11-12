@@ -63,6 +63,11 @@ class Database
 		$this->prefixes = array_merge($this->prefixes, $list);
 	}
 	
+	public function getNamedPrefix($name)
+	{
+		return $this->prefixes[$name];
+	}
+	
 	public function connect()
 	{
 		$start = microtime(true);
