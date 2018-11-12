@@ -95,6 +95,7 @@ class Database
 			$this->connect();
 		
 		$start = microtime(true);
+		$err = [];
 		
 		$query = $this->db->prepare($sql);
 		if($query !== false)
