@@ -48,7 +48,10 @@ class Database
 		$this->user = $user;
 		$this->pass = $pass;
 		$this->charset = $charset;
-		$this->persistent = $persistent;
+		if($vendor === "sqlite")
+			$this->persistent = false;
+		else
+			$this->persistent = $persistent;
 		
 		$this->prefixes[''] = "";
 	}
