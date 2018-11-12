@@ -192,27 +192,8 @@ abstract class Model
 		$columns = [];
 		
 		foreach($info['schema'] as $column => $type)
-		{
-			$def = "";
-			if(is_array($type))
-			{
-				$def = Model::getDefFromType($type[0]);
-				if(isset($type['primary']))
-					$def .= " PRIMARY KEY";
-				if(isset($type['auto']))
-					$def .= " auto_increment";
-				if(isset($type['null']) && $type['null'] == false)
-					$def .= " NOT NULL";
-				if(isset($type['default']))
-					$def .= " DEFAULT '{$type['default']}'";
-			}
-			else
-			{
-				$def = Model::getDefFromType($type);
-			}
-			
-			$columns[$column] = $def;
-		}
+			$columns[$column] = $db->modelTypeMap($type);
+		
 		$db->query($info['proxy'])->createTable($info['table'], $columns)->run();
 	}
 	
@@ -247,21 +228,5 @@ abstract class Model
 		}
 		
 		return $result;
-	}
-	
-	private static $types = [
-		'int' => "INT UNSIGNED",
-		'string' => "VARCHAR(120)",
-		'text' => "TEXT",
-		'list' => "VARCHAR(255)",
-		'bool' => "TINYINT(1)"
-	];
-	
-	private static function getDefFromType($type)
-	{
-		if(!isset(Model::$types[$type]))
-			throw new Exception("Unknown type: {$type}");
-		
-		return Model::$types[$type];
 	}
 }

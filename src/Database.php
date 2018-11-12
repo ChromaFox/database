@@ -146,4 +146,56 @@ class Database
 	{
 		return new \Minifox\Database\Query($this, $this->prefixes[$prefix]);
 	}
+	
+	public function modelTypeMap($type)
+	{
+		$dbtypes = [
+			'mysql' => [
+				'int' => "INT UNSIGNED",
+				'string' => "VARCHAR(120)",
+				'text' => "TEXT",
+				'list' => "VARCHAR(255)",
+				'bool' => "TINYINT(1)",
+				
+				'primary' => " PRIMARY KEY",
+				'auto' => " auto_increment",
+				'null' => [false => " NOT NULL", true => " NULL"],
+				'default' => " DEFAULT "
+			],
+			'sqlite' => [
+				'int' => "INTEGER",
+				'string' => "VARCHAR(120)",
+				'text' => "TEXT",
+				'list' => "VARCHAR(255)",
+				'bool' => "TINYINT(1)",
+				
+				'primary' => " PRIMARY KEY",
+				'auto' => " AUTOINCREMENT",
+				'null' => [false => " NOT NULL", true => " NULL"],
+				'default' => " DEFAULT "
+			],
+		];
+		
+		$types = $dbtypes[$this->vendor];
+		
+		$def = "";
+		if(is_array($type))
+		{
+			$def = $types[$type[0]];
+			if(isset($type['primary']))
+				$def .= $types['primary'];
+			if(isset($type['auto']))
+				$def .= $types['auto'];
+			if(isset($type['null']))
+				$def .= $types['null'][$type['null']];
+			if(isset($type['default']))
+				$def .= $types['default']."'{$type['default']}'";
+		}
+		else
+		{
+			$def = $types[$type];
+		}
+		
+		return $def;
+	}
 }
