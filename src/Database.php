@@ -101,15 +101,18 @@ class Database
 		if($query !== false)
 		{
 			$query->execute($values);
+			
 			$err = $query->errorInfo();
+			
+			if($err[0] !=0)
+				throw new \Exception($err[2]);
 		}
 		else
-			$err = $this->db->errorInfo();
-		if($err[0] != 0)
 		{
-			print_r($err);
-			print_r(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
+			$err = $this->db->errorInfo();
+			throw new \Exception($err[2]);
 		}
+		
 		$results = $query->fetchAll();
 		$query->closeCursor();
 		
