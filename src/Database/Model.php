@@ -179,7 +179,7 @@ abstract class Model
 		if($this->original[$idCol] === null && $this->modified[$idCol] === null)
 			return;
 		
-		$this->db->query($info['proxy'])->delete($info['table'])->where([$idCol => $this->{$idCol}]);
+		$this->db->query($info['proxy'])->delete($info['table'])->where([$idCol => $this->{$idCol}])->run();
 	}
 	
 	static function install(\Minifox\Database $db)
