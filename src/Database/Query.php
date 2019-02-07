@@ -30,7 +30,7 @@ class Query implements \IteratorAggregate
 		if($this->results == null)
 			$this->run();
 		
-		return new ArrayIterator($this->results);
+		return new \ArrayIterator($this->results);
 	}
 	
 	public function run()
