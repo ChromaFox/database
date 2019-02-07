@@ -1,4 +1,4 @@
-<?php namespace Minifox;
+<?php namespace CF;
 
 class Database
 {
