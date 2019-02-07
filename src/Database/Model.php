@@ -150,7 +150,7 @@ abstract class Model
 				continue;
 			
 			if($type == 'list' && is_array($this->modified[$col]))
-				$values[$col] = implode(", ", $this->modified[$col]);
+				$values[$col] = implode(",", $this->modified[$col]);
 			else if($type == 'bool')
 				$values[$col] = $this->modified[$col]? 1 : 0;
 			else
@@ -219,7 +219,7 @@ abstract class Model
 				if(empty($result[$key]))
 					$result[$key] = [];
 				else
-					$result[$key] = explode(", ", $result[$key]);
+					$result[$key] = explode(",", $result[$key]);
 			}
 			else if(isset($result[$key]) && $type == 'bool')
 			{
