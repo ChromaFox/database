@@ -1,4 +1,4 @@
-<?php namespace Minifox\Database;
+<?php namespace CF\Database;
 
 class Query implements \IteratorAggregate
 {
@@ -19,7 +19,7 @@ class Query implements \IteratorAggregate
 	
 	private $results = null;
 	
-	public function __construct(\Minifox\Database $db, $tablePrefix = "")
+	public function __construct(\CF\Database $db, $tablePrefix = "")
 	{
 		$this->db = $db;
 		$this->prefix = $tablePrefix;

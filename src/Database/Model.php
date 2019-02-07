@@ -1,4 +1,4 @@
-<?php namespace Minifox\Database;
+<?php namespace CF\Database;
 
 abstract class Model
 {
@@ -13,7 +13,7 @@ abstract class Model
 	// This should make sure the data is valid
 	function validate() { return true; }
 	
-	function __construct(\Minifox\Database $db, $values = [])
+	function __construct(\CF\Database $db, $values = [])
 	{
 		$this->db = $db;
 		
@@ -61,7 +61,7 @@ abstract class Model
 		unset($this->original[$name]);
 	}
 	
-	static function find(\Minifox\Database $db, $which, $extra = [])
+	static function find(\CF\Database $db, $which, $extra = [])
 	{
 		$info = static::schema();
 		
@@ -104,7 +104,7 @@ abstract class Model
 		}
 	}
 	
-	static function findOne(\Minifox\Database $db, $which, $extra = [])
+	static function findOne(\CF\Database $db, $which, $extra = [])
 	{
 		if(!isset($extra['limit']))
 			$extra['limit'] = 1;
@@ -117,7 +117,7 @@ abstract class Model
 			return null;
 	}
 	
-	static function count(\Minifox\Database $db, $which = [])
+	static function count(\CF\Database $db, $which = [])
 	{
 		$info = static::schema();
 		
@@ -182,7 +182,7 @@ abstract class Model
 		$this->db->query($info['proxy'])->delete($info['table'])->where([$idCol => $this->{$idCol}])->run();
 	}
 	
-	static function install(\Minifox\Database $db)
+	static function install(\CF\Database $db)
 	{
 		$info = static::schema();
 		

@@ -1,4 +1,4 @@
-<?php namespace Minifox;
+<?php namespace CF;
 
 class Database
 {
@@ -156,7 +156,7 @@ class Database
 	
 	public function query($prefix = "")
 	{
-		return new \Minifox\Database\Query($this, $this->prefixes[$prefix]);
+		return new \CF\Database\Query($this, $this->prefixes[$prefix]);
 	}
 	
 	public function modelTypeMap($type)

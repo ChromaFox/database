@@ -1,6 +1,6 @@
 {
-    "name": "minifox/database",
-    "description": "A simple ORM for Minifox",
+    "name": "chromafox/database",
+    "description": "A simple ORM for Chromafox",
     "type": "library",
     "authors": [
         {
@@ -10,7 +10,7 @@
     ],
 	"autoload": {
 		"psr-4": {
-			"Minifox\\": "src/"
+			"CF\\": "src/"
 		}
 	}
 }
