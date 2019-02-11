@@ -137,6 +137,8 @@ class Query implements \IteratorAggregate
 			$this->join['LEFT'] = [];
 		
 		$this->join['LEFT'][$table] = $on;
+		
+		return $this;
 	}
 	
 	public function values($values)
