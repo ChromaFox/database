@@ -133,7 +133,7 @@ class Query implements \IteratorAggregate
 		if(!is_array($this->join))
 			$this->join = [];
 		
-		if(!is_array($this->join['LEFT']))
+		if(!isset($this->join['LEFT']))
 			$this->join['LEFT'] = [];
 		
 		$this->join['LEFT'][$table] = $on;
