@@ -143,11 +143,10 @@ class Query implements \IteratorAggregate
 	
 	public function values($values)
 	{
-		if(is_array($this->whereValues))
+		if(is_array($this->queryValues))
 			$this->queryValues = array_merge_recursive($this->queryValues, $values);
 		else
 			$this->queryValues = $values;
-		$this->queryValues = $values;
 		
 		return $this;
 	}
