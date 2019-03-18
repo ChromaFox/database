@@ -16,6 +16,7 @@ class Query implements \IteratorAggregate
 	private $whereValues = null;
 	private $orderByValues = null;
 	private $limitValues = null;
+	private $groupColumn = null;
 	
 	private $results = null;
 	
@@ -51,6 +52,9 @@ class Query implements \IteratorAggregate
 		
 		if($this->limitValues)
 			$query['sql'] .= " LIMIT " . Query::formatLimit($this->limitValues);
+		
+		if($this->groupColumn)
+			$query['sql'] .= " GROUP BY " . $his->groupColumn;
 		
 		$result = $this->db->run($query['sql'], $query['values']);
 		
@@ -180,6 +184,11 @@ class Query implements \IteratorAggregate
 			$this->orderByValues = $values;
 		
 		return $this;
+	}
+	
+	public function groupBy($column)
+	{
+		$this->groupColumn = $column;
 	}
 	
 	public function limit($count, $start = null)
