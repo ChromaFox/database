@@ -117,14 +117,14 @@ abstract class Model
 			return null;
 	}
 	
-	static function count(\CF\Database $db, $which = [])
+	static function count(\CF\Database $db, $which = [], $group = null)
 	{
 		$info = static::schema();
 		
 		if(!isset($info['proxy']))
 			$info['proxy'] = '';
 		
-		return $db->query($info['proxy'])->count($info['table'])->where($which)->run();
+		return $db->query($info['proxy'])->count($info['table'])->where($which)->groupBy($group)->run();
 	}
 	
 	function save()
