@@ -137,19 +137,20 @@ class Query implements \IteratorAggregate
 		if(!is_array($this->join))
 			$this->join = [];
 		
-		if(!is_array($this->join['LEFT']))
+		if(!isset($this->join['LEFT']))
 			$this->join['LEFT'] = [];
 		
 		$this->join['LEFT'][$table] = $on;
+		
+		return $this;
 	}
 	
 	public function values($values)
 	{
-		if(is_array($this->whereValues))
+		if(is_array($this->queryValues))
 			$this->queryValues = array_merge_recursive($this->queryValues, $values);
 		else
 			$this->queryValues = $values;
-		$this->queryValues = $values;
 		
 		return $this;
 	}
