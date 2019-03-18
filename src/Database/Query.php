@@ -54,7 +54,7 @@ class Query implements \IteratorAggregate
 			$query['sql'] .= " LIMIT " . Query::formatLimit($this->limitValues);
 		
 		if($this->groupColumn)
-			$query['sql'] .= " GROUP BY " . $his->groupColumn;
+			$query['sql'] .= " GROUP BY " . $this->groupColumn;
 		
 		$result = $this->db->run($query['sql'], $query['values']);
 		
