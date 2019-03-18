@@ -190,6 +190,8 @@ class Query implements \IteratorAggregate
 	public function groupBy($column)
 	{
 		$this->groupColumn = $column;
+		
+		return $this;
 	}
 	
 	public function limit($count, $start = null)
