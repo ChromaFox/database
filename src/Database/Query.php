@@ -62,7 +62,15 @@ class Query implements \IteratorAggregate
 			$result = $this->db->lastInsertId();
 		else if($this->action == "Count")
 		{
-			if(!empty($result))
+			if($this->groupColumn)
+			{
+				$out = [];
+				foreach($result as $i)
+					$out[$i[$this->groupColumn]] = $i[0];
+				
+				$result = $out;
+			}
+			else if(!empty($result))
 				$result = $result[0][0];
 			else
 				$result = 0;
@@ -190,7 +198,7 @@ class Query implements \IteratorAggregate
 	public function groupBy($column)
 	{
 		$this->groupColumn = $column;
-		
+		$this->columns .= ", " . $column;
 		return $this;
 	}
 	
