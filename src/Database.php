@@ -118,7 +118,7 @@ class Database
 		else
 		{
 			$err = $this->db->errorInfo();
-			throw new \Exception($err[2]);
+			throw new \Exception($err[2] . " - " . $sql);
 		}
 		
 		$results = $query->fetchAll();
