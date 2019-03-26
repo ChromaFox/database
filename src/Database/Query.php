@@ -198,7 +198,8 @@ class Query implements \IteratorAggregate
 	public function groupBy($column)
 	{
 		$this->groupColumn = $column;
-		$this->columns .= ", " . $column;
+		if($column)
+			$this->columns .= ", " . $column;
 		return $this;
 	}
 	
