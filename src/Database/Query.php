@@ -4,21 +4,21 @@ class Query implements \IteratorAggregate
 {
 	private $db = null;
 	
-	private $action = null;
-	private $table = null;
-	private $prefix = "";
-	private $columns = null;
+	public $action = null;
+	public $table = null;
+	public $prefix = "";
+	public $columns = null;
 	
-	private $join = null;
+	public $join = null;
 	
-	private $queryValues = null;
+	public $queryValues = null;
 	
-	private $whereValues = null;
-	private $orderByValues = null;
-	private $limitValues = null;
-	private $groupColumn = null;
+	public $whereValues = null;
+	public $orderByValues = null;
+	public $limitValues = null;
+	public $groupColumn = null;
 	
-	private $results = null;
+	public $results = null;
 	
 	public function __construct(\CF\Database $db, $tablePrefix = "")
 	{
@@ -38,23 +38,7 @@ class Query implements \IteratorAggregate
 	{
 		$result = null;
 		
-		$query = call_user_func([$this, 'format'.$this->action]);
-		
-		if($this->whereValues)
-		{
-			$where = Query::formatWhere($this->whereValues);
-			$query['sql'] .= " WHERE " . $where['sql'];
-			$query['values'] = array_merge($query['values'], $where['values']);
-		}
-		
-		if($this->orderByValues)
-			$query['sql'] .= " ORDER BY " . Query::formatOrderBy($this->orderByValues);
-		
-		if($this->limitValues)
-			$query['sql'] .= " LIMIT " . Query::formatLimit($this->limitValues);
-		
-		if($this->groupColumn)
-			$query['sql'] .= " GROUP BY " . $this->groupColumn;
+		$query = $this->db->driver()->formatQuery($this);
 		
 		$result = $this->db->run($query['sql'], $query['values']);
 		
@@ -220,176 +204,5 @@ class Query implements \IteratorAggregate
 			$this->limit($pageSize, $pageStart);
 		
 		return $this;
-	}
-	
-	private function formatSelect()
-	{
-		if(is_array($this->columns))
-			$formattedCols = implode(", ", $this->columns);
-		else
-			$formattedCols = $this->columns;
-		
-		if(is_array($this->join))
-		{
-			// Join-y fun!
-			$sql = "SELECT {$formattedCols} FROM {$this->prefix}{$this->table}";
-			if(isset($this->join["LEFT"]))
-			{
-				$left = $this->join["LEFT"];
-				foreach($left as $leftTable => $on)
-					$sql .= " LEFT JOIN {$this->prefix}{$leftTable} ON {$on}";
-			}
-		}
-		else
-			$sql = "SELECT {$formattedCols} FROM {$this->prefix}{$this->table}";
-		
-		return ['sql' => $sql, 'values' => []];
-	}
-	
-	private function formatUpdate()
-	{
-		$sql = "UPDATE {$this->prefix}{$this->table} SET ";
-		$values = [];
-		
-		foreach($this->queryValues as $col => $val)
-		{
-			if(is_array($val) && isset($val['raw']))
-				$columns[] = "{$col} = {$val['raw']}";
-			else
-			{
-				$columns[] = "{$col} = ?";
-				$values[] = $val;
-			}
-		}
-		
-		$sql .= implode(", ", $columns);
-		
-		return ['sql' => $sql, 'values' => $values];
-	}
-	
-	private function formatInsert()
-	{
-		$columns = implode(', ', array_keys($this->queryValues));
-		$values = array_values($this->queryValues);
-		
-		$placeholders = implode(', ', array_fill(0, count($this->queryValues), '?'));
-		
-		$sql = "INSERT INTO {$this->prefix}{$this->table} ({$columns}) VALUES ({$placeholders})";
-		
-		return ['sql' => $sql, 'values' => $values];
-	}
-	
-	private function formatDelete()
-	{
-		$sql = "DELETE FROM {$this->prefix}{$this->table}";
-		
-		return ['sql' => $sql, 'values' => []];
-	}
-	
-	private function formatCount()
-	{
-		return $this->formatSelect();
-	}
-	
-	public function formatCreateTable()
-	{
-		$coldefs = [];
-		
-		foreach($this->columns as $col => $def)
-		{
-			if(is_string($col))
-				$coldefs[] = "{$col} {$def}";
-			else
-				$coldefs[] = $def;
-		}
-		
-		$coldefs = implode(", ", $coldefs);
-		$sql = "CREATE TABLE {$this->prefix}{$this->table} ({$coldefs})";
-		if(!empty($this->queryValues))
-			$sql .= " ENGINE = {$this->queryValues}";
-		
-		return ['sql' => $sql, 'values' => []];
-	}
-	
-	public function formatDropTable()
-	{
-		$sql = "DROP TABLE IF EXISTS {$this->prefix}{$this->table}";
-		return ['sql' => $sql, 'values' => []];
-	}
-	
-	private static function formatWhere($where, $combine = "AND")
-	{
-		$sql = "";
-		
-		$values = [];
-		
-		$clauses = [];
-		
-		foreach($where as $col => $value)
-		{
-			// remove comment/ID/uniquifier from column
-			$commentPos = strpos($col, '#');
-			if($commentPos !== false)
-				$col = substr($col, 0, $commentPos);
-			
-			if(in_array($col, ["AND", "OR"]))
-			{
-				// Sub-where
-				$subWhere = Query::formatWhere($value, $col);
-				
-				$clauses[] = "({$subWhere['sql']})";
-				$values = array_merge($values, $subWhere['values']);
-			}
-			else
-			{
-				if(is_array($value))
-				{
-					$value = array_unique($value);
-					if(count($value) == 1)
-						$value = $value[0];
-				}
-				
-				$colVals = explode(' ', $col);
-				$col = $colVals[0];
-				if(isset($colVals[1]))
-					$op = $colVals[1];
-				else if(is_array($value))
-					$op = "in";
-				else
-					$op = "=";
-				
-				if(is_array($value))
-				{
-					$values = array_merge($values, $value);
-					$clauses[] = "{$col} {$op} (" .  implode(',', array_fill(0, count($value), '?')) . ")";
-				}
-				else
-				{
-					$values[] = $value;
-					$clauses[] = "{$col} {$op} ?";
-				}
-			}
-		}
-		
-		$sql = implode(" {$combine} ", $clauses);
-		
-		return ['sql' => $sql, 'values' => $values];
-	}
-	
-	private static function formatOrderBy($columns)
-	{
-		$orders = [];
-		foreach($columns as $col => $dir)
-			$orders[] = "{$col} {$dir}";
-		
-		return implode(", ", $orders);
-	}
-	
-	private static function formatLimit($limit)
-	{
-		if(is_array($limit))
-			return "{$limit[0]}, {$limit[1]}";
-		else
-			return "{$limit}";
 	}
 }

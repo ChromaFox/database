@@ -192,12 +192,12 @@ abstract class Model
 		$columns = [];
 		
 		foreach($info['schema'] as $column => $type)
-			$columns[$column] = $db->modelTypeMap($type);
+			$columns[$column] = $db->driver()->getDatabaseTypeFor($type);
 		
 		$db->query($info['proxy'])->createTable($info['table'], $columns)->run();
 	}
 	
-	private static function getIDColumn($schema)
+	static function getIDColumn($schema)
 	{
 		foreach($schema as $col => $type)
 		{
