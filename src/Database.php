@@ -119,7 +119,7 @@ class Database
 			$err = $query->errorInfo();
 			
 			if($err[0] !=0)
-				throw new \Exception($err[2]);
+				throw new \Exception($err[2] . " - " . $sql);
 		}
 		else
 		{
