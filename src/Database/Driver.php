@@ -83,10 +83,7 @@ class Driver
 	
 	function formatSelect($query)
 	{
-		if(is_array($query->columns))
-			$formattedCols = implode(", ", $query->columns);
-		else
-			$formattedCols = $query->columns;
+		$formattedCols = implode(", ", $query->columns);
 		
 		if(is_array($query->join))
 		{
@@ -210,6 +207,8 @@ class Driver
 				
 				$colVals = explode(' ', $col);
 				$col = $colVals[0];
+				if(!empty($query->join) && (strpos($col, '.') === false))
+					$col = "{$query->prefix}{$query->table}.{$col}";
 				if(isset($colVals[1]))
 					$op = $colVals[1];
 				else if(is_array($value))

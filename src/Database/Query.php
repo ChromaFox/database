@@ -68,6 +68,9 @@ class Query implements \IteratorAggregate
 	{
 		$this->action = "Select";
 		$this->table = $table;
+		if(!is_array($columns))
+			$columns = array_map('trim', explode(",", $columns));
+		
 		$this->columns = $columns;
 		
 		return $this;
@@ -101,7 +104,7 @@ class Query implements \IteratorAggregate
 	{
 		$this->action = "Count";
 		$this->table = $table;
-		$this->columns = "COUNT(*)";
+		$this->columns = ["COUNT(*)"];
 		
 		return $this;
 	}
@@ -124,7 +127,7 @@ class Query implements \IteratorAggregate
 		return $this;
 	}
 	
-	public function leftJoin($table, $on)
+	public function leftJoin($table, $as, $on)
 	{
 		if(!is_array($this->join))
 			$this->join = [];
@@ -132,7 +135,15 @@ class Query implements \IteratorAggregate
 		if(!isset($this->join['LEFT']))
 			$this->join['LEFT'] = [];
 		
-		$this->join['LEFT'][$table] = $on;
+		$this->join['LEFT'][$table . " AS " . $as] = $this->prefix . $this->table . "." . $on;
+		
+		$columns = [];
+		foreach($this->columns as $col)
+			$columns[] = (strpos($col, ".") === false)? $this->prefix . $this->table . "." . $col : $col;
+		$this->columns = $columns;
+		
+		if(!empty($this->whereValues))
+			$this->whereValues = $this->rebuildWhere($this->whereValues);
 		
 		return $this;
 	}
@@ -149,6 +160,9 @@ class Query implements \IteratorAggregate
 	
 	public function where($values)
 	{
+		if(!empty($this->join))
+			$values = $this->rebuildWhere($values);
+		
 		if(is_array($this->whereValues))
 			$this->whereValues = array_merge_recursive($this->whereValues, $values);
 		else
@@ -183,7 +197,7 @@ class Query implements \IteratorAggregate
 	{
 		$this->groupColumn = $column;
 		if($column)
-			$this->columns .= ", " . $column;
+			$this->columns[] = $column;
 		return $this;
 	}
 	
@@ -204,5 +218,24 @@ class Query implements \IteratorAggregate
 			$this->limit($pageSize, $pageStart);
 		
 		return $this;
+	}
+	
+	private function rebuildWhere($values)
+	{
+		$result = [];
+		foreach($values as $col => $val)
+		{
+			if(!is_numeric($col) && ($col != "AND") && ($col != "OR") && (strpos($col, ".") === false))
+			{
+				if(is_array($val))
+					$val = $this->rebuildWhere($val);
+				
+				$result["{$this->prefix}{$this->table}.{$col}"] = $val;
+			}
+			else
+				$result[$col] = $val;
+		}
+		
+		return $result;
 	}
 }
