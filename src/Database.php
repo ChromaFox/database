@@ -53,7 +53,7 @@ class Database
 		else
 			$this->persistent = $persistent;
 		
-		$driverClass = "\CF\Database\Driver\{$vendor}";
+		$driverClass = "\\CF\\Database\\Driver\\{$vendor}";
 		if(class_exists($driverClass))
 			$this->dbDriver = new $driverClass();
 		else
