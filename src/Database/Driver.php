@@ -5,6 +5,19 @@ class Driver
 {
 	public function getDatabaseTypeFor($type)
 	{
+		$types = [
+			'int' => "INT UNSIGNED",
+			'string' => "VARCHAR(120)",
+			'text' => "TEXT",
+			'list' => "VARCHAR(255)",
+			'bool' => "TINYINT(1)",
+			
+			'primary' => " PRIMARY KEY",
+			'auto' => " auto_increment",
+			'null' => [false => " NOT NULL", true => " NULL"],
+			'default' => " DEFAULT "
+		];
+		
 		if(is_array($type))
 			$def = $types[$type[0]];
 		else
@@ -23,19 +36,6 @@ class Driver
 			
 			return $this->getDatabaseTypeFor($type);
 		}
-		
-		$types = [
-			'int' => "INT UNSIGNED",
-			'string' => "VARCHAR(120)",
-			'text' => "TEXT",
-			'list' => "VARCHAR(255)",
-			'bool' => "TINYINT(1)",
-			
-			'primary' => " PRIMARY KEY",
-			'auto' => " auto_increment",
-			'null' => [false => " NOT NULL", true => " NULL"],
-			'default' => " DEFAULT "
-		];
 		
 		$def = "";
 		
